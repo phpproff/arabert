@@ -4,14 +4,14 @@
 # any SQUAD-like structured files and "naively" re-alligns the answers start positions
 
 import tensorflow as tf
-from arabert.preprocess_arabert import preprocess, never_split_tokens
-from arabert.tokenization import BasicTokenizer
+from preprocess_arabert import preprocess, never_split_tokens
+from tokenization import BasicTokenizer
 
 import json
-
+tf = tf.compat.v1
 flags = tf.flags
 FLAGS = flags.FLAGS
-
+from farasa import segmentation as farasa
 ## Required parameters
 flags.DEFINE_string(
     "input_file", None,
@@ -39,16 +39,9 @@ def clean_preprocess(text,do_farasa_tokenization,farasa):
 def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
 
-  if FLAGS.do_farasa_tokenization and (FLAGS.path_to_farasa == None):
-    raise ValueError("do_farasa_tokenization is enabled, please provide the path_to_farasa")
-  
-  if FLAGS.do_farasa_tokenization:
-    from py4j.java_gateway import JavaGateway
 
-    gateway = JavaGateway.launch_gateway(classpath=FLAGS.path_to_farasa)
-    farasa = gateway.jvm.com.qcri.farasa.segmenter.Farasa()
-  else:
-    farasa=None
+  
+
 
   with tf.gfile.Open(FLAGS.input_file, "r") as reader:
     input_data = json.load(reader)["data"]
